@@ -8,7 +8,9 @@ content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<canvas id="fireworks" aria-hidden="true"></canvas>
 <header>
+<div class="temple-mark" aria-label="Silent Temple">BMO <span>静</span></div>
 <nav>
 <a href="#about">About</a>
 <a href="#projects">Projects</a>
@@ -17,16 +19,20 @@ content="width=device-width, initial-scale=1.0">
 </header>
 <main>
 <section id="hero">
+<div class="hero-koi" aria-hidden="true">鯉</div>
 <h1>BMO</h1>
 <p class="tagline">
 Aspiring Software Developer - i.c.stars
 </p>
+<p class="hero-note">A quiet garden of ideas, craft, and becoming.</p>
 </section>
 <section id="about">
+<div class="section-koi" aria-hidden="true">鯉</div>
 <h2>About Me</h2>
 <p>My name is Brandon Michael Odulate. I am in the i.c.stars program, learning technology and aspiring to be a project manager. I am passionate about creating innovative solutions and contributing to meaningful projects.</p>
 </section>
 <section id="projects">
+<div class="section-koi" aria-hidden="true">鯉</div>
 <h2>Projects</h2>
 <div class="project">
 <h3>Medline</h3>
@@ -34,11 +40,12 @@ Aspiring Software Developer - i.c.stars
 </div>
 <div class="project">
 <h3>Fragrance by Odulate</h3> 
-<a href="file:///C:/Users/BrandonOdulate/Documents/BMO%20fragrance%20website.html"</a></a>
+<a href="file:///C:/Users/BrandonOdulate/Documents/BMO%20fragrance%20website.html">View project</a>
 <p>A e-commerce website for a fragrance brand.</p>
 </div>
 </section>
 <section id="contact">
+<div class="section-koi" aria-hidden="true">鯉</div>
 <h2>Contact</h2>
 <p>Email:
 <a href="mailto:you@example.com">Bodulate@icstars.org</a>
@@ -50,7 +57,88 @@ github.com/bodulate</a>
 </section>
 </main>
 <footer>
-<p>&copy; 2026 Your Name</p>
+<p>&copy; 2026 Brandon Odulate
+    
+</p>
 </footer>
+<script>
+const canvas = document.getElementById("fireworks");
+const context = canvas.getContext("2d");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const colors = ["#d84d3f", "#e5b85c", "#f2ead8", "#4c9a78"];
+let fireworks = [];
+let sparks = [];
+let startTime;
+
+function resizeCanvas() {
+	const ratio = window.devicePixelRatio || 1;
+	canvas.width = window.innerWidth * ratio;
+	canvas.height = window.innerHeight * ratio;
+	canvas.style.width = `${window.innerWidth}px`;
+	canvas.style.height = `${window.innerHeight}px`;
+	context.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
+function launchFirework(delay, x, y) {
+	setTimeout(() => {
+		const color = colors[Math.floor(Math.random() * colors.length)];
+		fireworks.push({ x, y, radius: 0, color, opacity: 1 });
+		for (let index = 0; index < 32; index += 1) {
+			const angle = (Math.PI * 2 * index) / 32;
+			sparks.push({
+				x,
+				y,
+				velocityX: Math.cos(angle) * (1.5 + Math.random() * 2.2),
+				velocityY: Math.sin(angle) * (1.5 + Math.random() * 2.2),
+				color,
+				opacity: 1,
+			});
+		}
+	}, delay);
+}
+
+function animateFireworks(time) {
+	if (!startTime) startTime = time;
+	const elapsed = time - startTime;
+	context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+	fireworks = fireworks.filter((firework) => firework.opacity > 0);
+	fireworks.forEach((firework) => {
+		firework.radius += 1.8;
+		firework.opacity -= .035;
+		context.beginPath();
+		context.arc(firework.x, firework.y, firework.radius, 0, Math.PI * 2);
+		context.strokeStyle = `${firework.color}${Math.max(0, Math.floor(firework.opacity * 255)).toString(16).padStart(2, "0")}`;
+		context.stroke();
+	});
+
+	sparks = sparks.filter((spark) => spark.opacity > 0);
+	sparks.forEach((spark) => {
+		spark.x += spark.velocityX;
+		spark.y += spark.velocityY;
+		spark.velocityY += .025;
+		spark.opacity -= .018;
+		context.fillStyle = `${spark.color}${Math.max(0, Math.floor(spark.opacity * 255)).toString(16).padStart(2, "0")}`;
+		context.fillRect(spark.x, spark.y, 2, 2);
+	});
+
+	if (elapsed < 5500 || sparks.length > 0) {
+		requestAnimationFrame(animateFireworks);
+	} else {
+		canvas.classList.add("fireworks-finished");
+	}
+}
+
+if (!reducedMotion) {
+	resizeCanvas();
+	window.addEventListener("resize", resizeCanvas);
+	launchFirework(250, window.innerWidth * .22, window.innerHeight * .3);
+	launchFirework(850, window.innerWidth * .76, window.innerHeight * .25);
+	launchFirework(1500, window.innerWidth * .5, window.innerHeight * .2);
+	launchFirework(2350, window.innerWidth * .34, window.innerHeight * .22);
+	launchFirework(3100, window.innerWidth * .68, window.innerHeight * .32);
+	requestAnimationFrame(animateFireworks);
+}
+</script>
 </body>
 </html>
